@@ -10,21 +10,11 @@ I have adjusted some myself (and will expand further) and would like to share it
 
 ![image](img/sensormonitoring.png?raw=true "Alert monitoring system")
 
+![image](img/monitor-enable.png?raw=true "Sensor alarms enable/disable")
+
 # Howto:
 * Just create a new dashboard and use the content of the monitor-dashboard.txt file to fill it for starters
 * Copy the content of the packages-folder to your HomeAssistant \\???.???.???.???0\config\packages\ folder
-
-
-![image](img/monitor-enable.png?raw=true "Sensor alarms enable/disable")
-
-| Electronic design | LoRa T-Beam |
-|------------|-------------|
-| ![Electronic design](img/monitor-enable.png?raw=true "Electronic design") | ![T-Beam v1.1](img/T-BeamV1dot1.jpeg?raw=true "T-Beam v1.1") |
-
-
-| cayenne.mydevices temperature graph | cayenne.mydevices pH graph|
-|------------|-------------|
-| ![Temperature graph](img/temperature.png?raw=true "Temperature graph") | ![pH graph](img/pH.png?raw=true "pH graph") |
 
 # Note
 
