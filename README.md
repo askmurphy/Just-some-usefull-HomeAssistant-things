@@ -14,7 +14,7 @@ I have adjusted some myself (and will expand further) and would like to share it
 
 # Howto:
 * Just create a new dashboard and use the content of the monitor-dashboard.txt file to fill it for starters
-* Copy the content of the packages-folder to your HomeAssistant \\???.???.???.???0\config\packages\ folder
+* Copy the content of the packages-folder to your HomeAssistant \config\packages\ folder
 
 # Note
 
