@@ -34,8 +34,8 @@ sensor:
         friendly_name: "Test batterij monitormelding"
         value_template: >
           {% if is_state('binary_sensor.test_batterij_alarm_actief', 'on') %}
-            Testbatterij is {{ states('input_number.test_batterij') }} Volt \
-            Tijdstip: {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+            Testbatterij is {{ states('input_number.test_batterij') }} Volt,
+            update: {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
           {% else %}
             Geen alarm actief
           {% endif %}
@@ -56,9 +56,9 @@ alert:
     skip_first: true
     title: "Waarschuwing alarm - Test batterij"
     message: >
-      Test is {{ states('input_number.test_batterij') }} Volt \  
-      Tijdstip: {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
-    done_message: "Test batterij HERSTELD op {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+      Test is {{ states('input_number.test_batterij') }} Volt, 
+      update: {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
+    done_message: "Test batterij HERSTELD op {{ as_timestamp(states.binary_sensor.test_batterij_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}"
     notifiers:
       - STD_Critical
       #- STD_Warning

@@ -1,35 +1,33 @@
 input_boolean:
   afval_monitoring:
     name: Afval monitoring
-    icon: mdi:information-outline
+    icon: mdi:alert-circle-outline
 
 template:
   - binary_sensor:
       - name: Afval alarm actief
-        state: "{{ not is_state('sensor.afvalinfo_westerlee_trash_type_today', 'geen') and is_state('input_boolean.afval_monitoring', 'on') }}"
-        availability: "{{ states('sensor.afvalinfo_westerlee_trash_type_today') not in ['unavailable', 'unknown', 'none'] }}"
+        state: "{{ not is_state('sensor.afvalinfo_groningen_trash_type_today', 'gen') and is_state('input_boolean.afval_monitoring', 'on') }}"
+        availability: "{{ states('sensor.afvalinfo_groningen_trash_type_today') not in ['unavailable', 'unknown', 'none'] }}"
 
-sensor:
-  - platform: template
-    sensors:
-      afval_informatie_alarm_actief:
-        friendly_name: "Afval alarm actief"
-        value_template: "{{ is_state('binary_sensor.afval_alarm_actief', 'on') }}"
-        availability_template: "{{ states('binary_sensor.afval_alarm_actief') not in ['unavailable', 'unknown'] }}"
+# Deze binaire sensor zal aan (true) zijn als:
+#
+#    Als er een afval container geleegd gaat worden vandaag.
+#    De input_boolean.afval_monitoring ingeschakeld is.
 
-      afval_monitormelding:
-        friendly_name: "Afval monitormelding"
-        value_template: >
-          {% if is_state('binary_sensor.afval_alarm_actief', 'on') %}
-            Afvalcontainer {{ states('sensor.afvalinfo_westerlee_trash_type_today') }} wordt vandaag geleegd! \
-            Tijdstip: {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
-          {% else %}
-            Geen alarm actief
-          {% endif %}
-        availability_template: "{{ is_state('binary_sensor.afval_alarm_actief', 'on') }}"
+# dashboard monitormelding, format name: "??? monitormelding"
+  - sensor:
+     - name: "Afval monitormelding"
+       state: >
+         {% if is_state('binary_sensor.afval_alarm_actief', 'on') %}
+           Afvalcontainer {{ states('sensor.afvalinfo_groningen_trash_type_today') }} wordt vandaag geleegd,
+           update: {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
+         {% else %}
+           Geen alarm actief
+         {% endif %}
+       availability: "{{ states('binary_sensor.afval_alarm_actief') not in ['unavailable', 'unknown'] }}"
 
 alert:
-  afval_informatie_alarm_actief:
+  afval_info_alarm_actief:
     name: Afval alarm actief
     entity_id: binary_sensor.afval_alarm_actief
     state: "on"
@@ -40,10 +38,12 @@ alert:
       - 120
     can_acknowledge: true
     skip_first: true
-    title: "Informatie - Afvalalarm actief"
+    title: "Info alarm - Afval containerr"
     message: >
-      Afvalcontainer {{ states('sensor.afvalinfo_westerlee_trash_type_today') }} wordt vandaag geleegd! \
-      Tijdstip: {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
-    done_message: "Afvalalarm HERSTELD op {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+      Afvalcontainer {{ states('sensor.afvalinfo_groningen_trash_type_today') }}  wordt vandaag geleegd,
+      update: {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
+    done_message: "Afval container alarm inactief op {{ as_timestamp(states.binary_sensor.afval_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}"
     notifiers:
-      - STD_Information  # Zorg ervoor dat de juiste notifier is geselecteerd
+      #- STD_Critical
+      #- STD_Warning
+      - STD_Information

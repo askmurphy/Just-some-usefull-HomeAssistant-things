@@ -19,8 +19,8 @@ template:
       - name: "CVketel monitormelding"
         state: >
           {% if is_state('binary_sensor.cvketel_alarm_actief', 'on') %}
-          Waterdruk in de cvketel is te laag: {{ states('sensor.incomfort_cv_pressure') }} bar \  
-          Tijdstip: {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+          Waterdruk in de cvketel is te laag: {{ states('sensor.incomfort_cv_pressure') }} bar,
+          update: {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
           {% else %}
             Geen alarm actief
           {% endif %}
@@ -40,9 +40,9 @@ alert:
     skip_first: true
     title: "Waarschuwing alarm - CVketel druk"
     message: >
-      Waterdruk in de cvketel is te laag: {{ states('sensor.incomfort_cv_pressure') }} bar \  
-      Tijdstip: {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
-    done_message: CVketel druk HERSTELD op {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+      Waterdruk in de cvketel is te laag: {{ states('sensor.incomfort_cv_pressure') }} bar,
+      update: {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
+    done_message: CVketel druk HERSTELD op {{ as_timestamp(states.binary_sensor.cvketel_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}"
     notifiers:
       #- STD_Critical
       - STD_Warning

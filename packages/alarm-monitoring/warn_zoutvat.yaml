@@ -19,8 +19,8 @@ template:
       - name: "Waterontharder monitormelding"
         state: >
           {% if is_state('binary_sensor.zoutvat_alarm_actief', 'on') %}
-            Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm \  
-            Tijdstip: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+            Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm,
+            update: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
           {% else %}
             Geen alarm actief
           {% endif %}
@@ -40,9 +40,9 @@ alert:
     skip_first: true
     title: "Waarschuwing alarm - Waterontharder"
     message: >
-      Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm \  
-      Tijdstip: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
-    done_message: "Zoutvat niveau HERSTELD op {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+      Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm,
+      update: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}
+    done_message: "Zoutvat niveau HERSTELD op {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%d-%m-%Y om %H:%M') }}"
     notifiers:
       #- STD_Critical
       - STD_Warning

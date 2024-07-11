@@ -94,7 +94,7 @@ views:
                       }
                 filter:
                   include:
-                    - entity_id: /^alert(.).*_informatie_alarm_actief/
+                    - entity_id: /^alert(.).*_info_alarm_actief/
                       options:
                         secondary_info: last-changed
                   exclude:
@@ -183,7 +183,14 @@ views:
           - type: tile
             entity: sensor.incomfort_cv_pressure
           - type: tile
-            entity: sensor.afvalinfo_westerlee_trash_type_today
+            entity: sensor.afvalinfo_groningen_trash_type_today
+          - type: custom:auto-entities
+            card:
+              type: logbook
+              title: Alert logbook
+            filter:
+              include:
+                - domain: alert
     cards: []
   - title: Monitor-configuratie
     path: monitor-configuratie
