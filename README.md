@@ -1,15 +1,16 @@
 # HomeAssistant
 Just some nice things I use in our HomeAssistant setup, happy to share it with you ;-)
 
-# LoRa pH temperature sensor
+# An sensor Alert monitoring system, to warn you if there is something wrong. 
 
-![image](img/sensormonitoring.png?raw=true "LoRa pH temperature sensor")
+![image](img/sensormonitoring.png?raw=true "Alert monitoring system")
 
-This is a nice LoRa sensor for measuring the pH and the temperature of your swimming pool, drainage-basin or whatever you like.
+Howto:
+Just create a new dashboard and use the content of the monitor-dashboard.txt file to fill it for starters; and copy the content of the packages-folder to your HomeAssistant \\???.???.???.???0\config\packages\ folder. 
 
 | Electronic design | LoRa T-Beam |
 |------------|-------------|
-| ![Electronic design](img/Schematic.png?raw=true "Electronic design") | ![T-Beam v1.1](img/T-BeamV1dot1.jpeg?raw=true "T-Beam v1.1") |
+| ![Electronic design](img/monitor-enable.png?raw=true "Electronic design") | ![T-Beam v1.1](img/T-BeamV1dot1.jpeg?raw=true "T-Beam v1.1") |
 
 
 | cayenne.mydevices temperature graph | cayenne.mydevices pH graph|
