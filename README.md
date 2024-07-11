@@ -3,7 +3,7 @@ Just some nice things I use in our HomeAssistant setup, happy to share it with y
 
 # LoRa pH temperature sensor
 
-![image](img/sensor.jpg?raw=true "LoRa pH temperature sensor")
+![image](img/sensormonitoring.png?raw=true "LoRa pH temperature sensor")
 
 This is a nice LoRa sensor for measuring the pH and the temperature of your swimming pool, drainage-basin or whatever you like.
 
