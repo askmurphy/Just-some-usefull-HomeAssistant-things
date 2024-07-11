@@ -1,0 +1,49 @@
+input_boolean:
+  diepvriezer_monitoring:
+    name: Diepvriezer monitoring
+    icon: mdi:alert
+
+template:
+  - binary_sensor:
+      - name: Diepvriezer alarm actief
+        state: "{{ (states('sensor.diepvriezer_lora_temperature') | int(0) < -25 or states('sensor.diepvriezer_lora_temperature') | int(0) > -17) and is_state('input_boolean.diepvriezer_monitoring', 'on') }}"
+        availability: "{{ states('sensor.diepvriezer_lora_temperature') not in ['unavailable', 'unknown', 'none'] }}"
+
+# Deze binaire sensor "Diepvriezer alarm actief" zal aan (true) zijn als:
+#
+#    temperatuur van de diepvriezer (sensor.diepvriezer_lora_temperature) minder dan -25 of meer dan -17 graden is.
+#    input_boolean.diepvriezer_monitoring ingeschakeld is.
+
+# dashboard monitormelding, format name: "??? monitormelding"
+  - sensor:
+      - name: "Diepvriezer monitormelding"
+        state: >
+          {% if is_state('binary_sensor.diepvriezer_alarm_actief', 'on') %}
+            Diepvriezer temperatuur is {{ states('sensor.diepvriezer_lora_temperature') }} Celcius \  
+            Tijdstip: {{ as_timestamp(states.binary_sensor.diepvriezer_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+          {% else %}
+            Geen alarm actief
+          {% endif %}
+        availability: "{{ states('binary_sensor.diepvriezer_alarm_actief') not in ['unavailable', 'unknown'] }}"
+        
+alert:
+  diepvriezer_kritisch_alarm_actief:
+    name: Diepvriezer alarm actief
+    entity_id: binary_sensor.diepvriezer_alarm_actief
+    state: "on"
+    repeat:
+      - 15
+      - 30
+      - 60
+      - 120
+    can_acknowledge: true
+    skip_first: true
+    title: "Kritisch alarm - Diepvriezer"
+    message: >
+      Diepvriezer temperatuur is {{ states('sensor.diepvriezer_lora_temperature') }} Celcius \  
+      Tijdstip: {{ as_timestamp(states.binary_sensor.diepvriezer_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+    done_message: "Diepvriezer temperatuur HERSTELD op {{ as_timestamp(states.binary_sensor.diepvriezer_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+    notifiers:
+      - STD_Critical
+      #- STD_Warning
+      #- STD_Information

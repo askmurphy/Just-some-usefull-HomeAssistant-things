@@ -1,0 +1,49 @@
+input_boolean:
+  vijver_monitoring:
+    name: Vijver monitoring
+    icon: mdi:alert
+
+template:
+  - binary_sensor:
+      - name: Vijver alarm actief
+        state: "{{ (states('sensor.vijver_level_distance') | int(0) > 350) and is_state('input_boolean.vijver_monitoring', 'on') }}"
+        availability: "{{ states('sensor.vijver_level_distance') not in ['unavailable', 'unknown', 'none'] }}"
+
+# Deze binaire sensor "Vijver alarm actief" zal aan (true) zijn als:
+#
+#    waterniveau van de vijver (sensor.vijver_level_distance) groter dan 350mm is.
+#    input_boolean.vijver_monitoring ingeschakeld is.
+
+# dashboard monitormelding, format name: "??? monitormelding"
+  - sensor:
+      - name: "Vijver monitormelding"
+        state: >
+          {% if is_state('binary_sensor.vijver_alarm_actief', 'on') %}
+          Waterniveau in de vijver is te laag: {{ states('sensor.vijver_level_distance') }} mm \  
+          Tijdstip: {{ as_timestamp(states.binary_sensor.vijver_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+          {% else %}
+            Geen alarm actief
+          {% endif %}
+        availability: "{{ states('binary_sensor.vijver_alarm_actief') not in ['unavailable', 'unknown'] }}"
+        
+alert:
+  vijver_kritisch_alarm_actief:
+    name: Vijver alarm actief
+    entity_id: binary_sensor.vijver_alarm_actief
+    state: "on"
+    repeat:
+      - 15
+      - 30
+      - 60
+      - 120
+    can_acknowledge: true
+    skip_first: true
+    title: "Kritisch alarm - Vijver"
+    message: >
+      Waterniveau in de vijver is te laag: {{ states('sensor.vijver_level_distance') }} mm \  
+      Tijdstip: {{ as_timestamp(states.binary_sensor.vijver_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+    done_message: "Vijver niveau HERSTELD op {{ as_timestamp(states.binary_sensor.vijver_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+    notifiers:
+      - STD_Critical
+      #- STD_Warning
+      #- STD_Information

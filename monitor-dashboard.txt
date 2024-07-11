@@ -1,0 +1,218 @@
+kiosk_mode:
+  non_admin_settings:
+    hide_header: true
+    hide_sidebar: true
+  admin_settings:
+    hide_header: true
+    hide_menubutton: true
+views:
+  - type: sections
+    max_columns: 2
+    title: Sensor-alarmen
+    path: sensor-alarmen
+    sections:
+      - type: grid
+        cards:
+          - type: custom:auto-entities
+            card:
+              type: entities
+              title: Actieve monitormeldingen
+              show_header_toggle: false
+              state_color: true
+            filter:
+              include:
+                - entity_id: sensor.*_monitormelding
+                  state: '!= Geen alarm actief'
+              exclude:
+                - state: Geen alarm actief
+          - type: vertical-stack
+            cards:
+              - type: custom:auto-entities
+                show_empty: true
+                card:
+                  type: entities
+                  title: Actieve kritische alarmen
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background-color: rgba(251,13,13,1);
+                        border-radius: 5px;
+                        --primary-color: white;
+                        --paper-item-icon-color: white;
+                        --secondary-text-color: white;
+                      }
+                filter:
+                  include:
+                    - entity_id: /^alert(.).*_kritisch_alarm_actief/
+                      options:
+                        secondary_info: last-changed
+                  exclude:
+                    - state: 'off'
+                    - state: idle
+                  sort:
+                    method: last_changed
+                    reverse: true
+              - type: custom:auto-entities
+                show_empty: true
+                card:
+                  type: entities
+                  title: Actieve waarschuwingen
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background-color: rgba(204,102,0,1);
+                        border-radius: 5px;
+                        --primary-color: white;
+                        --paper-item-icon-color: white;
+                        --secondary-text-color: white;
+                      }
+                filter:
+                  include:
+                    - entity_id: /^alert(.).*_waarschuwing_alarm_actief/
+                      options:
+                        secondary_info: last-changed
+                  exclude:
+                    - state: 'off'
+                    - state: idle
+                    - state: unavailable
+                sort:
+                  method: last_changed
+                  reverse: true
+              - type: custom:auto-entities
+                show_empty: true
+                card:
+                  type: entities
+                  title: Actieve informatie
+                  card_mod:
+                    style: |
+                      ha-card {
+                        background-color: rgba(108,150,58,1);
+                        border-radius: 5px;
+                        --primary-color: white;
+                        --paper-item-icon-color: white;
+                        --secondary-text-color: white;
+                      }
+                filter:
+                  include:
+                    - entity_id: /^alert(.).*_informatie_alarm_actief/
+                      options:
+                        secondary_info: last-changed
+                  exclude:
+                    - state: 'off'
+                    - state: idle
+                sort:
+                  method: last_changed
+                  reverse: true
+          - type: custom:auto-entities
+            show_empty: false
+            card:
+              type: entities
+              title: Geaccepteerde alarmen
+              card_mod:
+                style: |
+                  ha-card {
+                    background-color: rgba(68,115,158,1);
+                    border-radius: 5px;
+                    --primary-color: white;
+                    --paper-item-icon-color: white;
+                    --secondary-text-color: white;
+                  }
+            filter:
+              include:
+                - domain: alert
+                  options:
+                    secondary_info: last-changed
+              exclude:
+                - state: 'on'
+                - state: idle
+            sort:
+              method: last_changed
+              reverse: true
+      - type: grid
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                icon_color: green
+                icon: mdi:shaker-outline
+                layout: horizontal
+                primary_info: name
+                secondary_info: state
+                entity: sensor.zoutvatlevel
+                name: Zoutvat niveau
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/apparatuur
+              - type: custom:mushroom-entity-card
+                layout: horizontal
+                entity: sensor.solaredge_i1_ac_voltage_ab
+                name: Netspanning
+                secondary_info: state
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/solaredge
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                layout: horizontal
+                secondary_info: state
+                entity: sensor.diepvriezer_lora_temperature
+                name: Diepvriezer temperatuur
+                tap_action:
+                  action: navigate
+                  navigation_path: /sensor-alarmen/diepvriezer-details
+              - type: custom:mushroom-entity-card
+                layout: horizontal
+                secondary_info: state
+                entity: sensor.vijver_level_distance
+                name: Vijver niveau (<500)
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/vijver
+                fill_container: false
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-entity-card
+                layout: horizontal
+                entity: input_number.test_batterij
+                name: Test batterij
+                secondary_info: state
+                tap_action:
+                  action: navigate
+                  navigation_path: /lovelace/solaredge
+          - type: tile
+            entity: sensor.incomfort_cv_pressure
+          - type: tile
+            entity: sensor.afvalinfo_westerlee_trash_type_today
+    cards: []
+  - title: Monitor-configuratie
+    path: monitor-configuratie
+    cards:
+      - type: vertical-stack
+        cards:
+          - type: custom:love-lock-card
+            title: Sensor-alarmsysteem aan/uit
+            cards:
+              - type: custom:auto-entities
+                card:
+                  type: entities
+                filter:
+                  include:
+                    - entity_id: '*_monitoring*'
+    subview: false
+    icon: mdi:lock
+  - title: Diepvriezer details
+    path: diepvriezer-details
+    icon: ''
+    cards:
+      - type: horizontal-stack
+        cards:
+          - type: custom:apexcharts-card
+            header:
+              show: true
+              title: Diepvriezer temperatuur
+              show_states: true
+              colorize_states: true
+            series:
+              - entity: sensor.diepvriezer_lora_temperature
+    subview: true

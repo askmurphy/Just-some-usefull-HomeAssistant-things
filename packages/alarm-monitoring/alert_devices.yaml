@@ -1,0 +1,67 @@
+input_boolean:
+  device_restart_notify:
+    name: Device Restart Notify
+    icon: mdi:information
+
+template:
+    # Note this binary sensor is checking group.device_uptimes for a sensor that matches '3 minutes' which you would get from relative_time
+  - binary_sensor:
+      - name: Device Restart Alert Active
+        state: "{{ (expand('group.device_uptimes') | selectattr('state', 'match', '3 minutes') | map(attribute='attributes.friendly_name') | list | count | int(0) > 0) and is_state('input_boolean.device_restart_notify', 'on') }}"
+    # Template trigger to create sensor.home_assistant_uptime using relative_time.  Template trigger allows the value to be refreshed every 1 minute otherwise it would never update since ha_last_start only changes on restart.
+  - trigger:
+      - platform: time_pattern
+        minutes: "/1"
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: "call_service"
+        event_data:
+          domain: "template"
+          service: "reload"
+    sensor:
+      - name: Home Assistant Uptime
+        state: >
+          {{ states('sensor.ha_last_start')|as_datetime|relative_time }}
+
+automation:
+    # Automatically add all sensors ending in _uptime to the group.
+  - alias: "Update Device Uptimes Group"
+    trigger:
+      - platform: homeassistant
+        event: start
+      - platform: event
+        event_type: "call_service"
+        event_data:
+          domain: "group"
+          service: "reload"
+    action:
+      - service: group.set
+        data_template:
+          object_id: device_uptimes
+          name: Device Uptimes
+          entities: >
+            {% set ns = namespace(entities=[]) %}
+            {% set initialList = states.sensor %}
+            {% for s in initialList if s.object_id.endswith('_uptime') %}
+              {% set ns.entities = ns.entities + [ s.entity_id ] %}
+            {% endfor %}
+            {{ ns.entities }}
+    # Note - this is not an alert, just an automation to send a notification when the condition is satified.
+  - alias: Device Restart Info Alert Active
+    description: ""
+    mode: single
+    trigger:
+      - platform: template
+        ## You could just reference the binary sensor above, this is duplicating the same logic to show how it can be done in an automation
+        value_template: >
+          {{ expand('group.device_uptimes') | selectattr('state', 'match', '3 minutes') | map(attribute='attributes.friendly_name') | list | count | int(0) > 0 }}
+    condition: "{{ is_state('input_boolean.device_restart_notify', 'on') }}"
+    action:
+      - service: notify.STD_Information
+        data:
+          message: >
+            Device(s) restarted: {{ expand('group.device_uptimes') | selectattr('state', 'match', '3 minutes') | map(attribute='attributes.friendly_name') | list | join(', ') | replace(' Uptime', '') }} \ 
+            Triggered: {{ as_timestamp(states.binary_sensor.device_restart_alert_active.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+          title: "7580 Info - Device Restarted"
+      - delay: 00:00:05

@@ -1,0 +1,49 @@
+input_boolean:
+  zoutvat_monitoring:
+    name: Zoutvat monitoring
+    icon: mdi:alert-circle-outline
+
+template:
+  - binary_sensor:
+      - name: Zoutvat alarm actief
+        state: "{{ (states('sensor.zoutvatlevel') | int(0) < 60) and is_state('input_boolean.zoutvat_monitoring', 'on') }}"
+        availability: "{{ states('sensor.zoutvatlevel') not in ['unavailable', 'unknown', 'none'] }}"
+
+# Deze binaire sensor "Zoutvat alarm actief" zal aan (true) zijn als:
+#
+#    Het zoutvat niveau van de waterontharder (sensor.zoutvatlevel) lager is dan 40mm.
+#    De input_boolean.zoutvat_monitoring ingeschakeld is.
+
+# dashboard monitormelding, format name: "??? monitormelding"
+  - sensor:
+      - name: "Waterontharder monitormelding"
+        state: >
+          {% if is_state('binary_sensor.zoutvat_alarm_actief', 'on') %}
+            Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm \  
+            Tijdstip: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+          {% else %}
+            Geen alarm actief
+          {% endif %}
+        availability: "{{ states('binary_sensor.zoutvat_alarm_actief') not in ['unavailable', 'unknown'] }}"
+
+alert:
+  zoutvat_waarschuwing_alarm_actief:
+    name: Zoutvat alarm actief
+    entity_id: binary_sensor.zoutvat_alarm_actief
+    state: "on"
+    repeat:
+      - 15
+      - 30
+      - 60
+      - 120
+    can_acknowledge: true
+    skip_first: true
+    title: "Waarschuwing alarm - Waterontharder"
+    message: >
+      Zoutvat niveau is te laag: {{ states('sensor.zoutvatlevel') }} mm \  
+      Tijdstip: {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}
+    done_message: "Zoutvat niveau HERSTELD op {{ as_timestamp(states.binary_sensor.zoutvat_alarm_actief.last_changed) | timestamp_custom('%A %I:%M%p (%d-%b-%Y)') }}"
+    notifiers:
+      #- STD_Critical
+      - STD_Warning
+      #- STD_Information
