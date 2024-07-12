@@ -6,7 +6,7 @@ input_boolean:
 template:
   - binary_sensor:
       - name: CVketel alarm actief
-        state: "{{ (states('sensor.incomfort_cv_pressure') | float(0) < 1.6) and is_state('input_boolean.cvketel_monitoring', 'on') }}"
+        state: "{{ (states('sensor.incomfort_cv_pressure') | float(0) < 1.3) and is_state('input_boolean.cvketel_monitoring', 'on') }}"
         availability: "{{ states('sensor.incomfort_cv_pressure') not in ['unavailable', 'unknown', 'none'] }}"
 
 # Deze binaire sensor "CVketel alarm actief" zal aan (true) zijn als:

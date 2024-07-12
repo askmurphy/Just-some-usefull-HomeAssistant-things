@@ -6,7 +6,7 @@ input_boolean:
 template:
   - binary_sensor:
       - name: Zoutvat alarm actief
-        state: "{{ (states('sensor.zoutvatlevel') | int(0) < 60) and is_state('input_boolean.zoutvat_monitoring', 'on') }}"
+        state: "{{ (states('sensor.zoutvatlevel') | int(0) < 40) and is_state('input_boolean.zoutvat_monitoring', 'on') }}"
         availability: "{{ states('sensor.zoutvatlevel') not in ['unavailable', 'unknown', 'none'] }}"
 
 # Deze binaire sensor "Zoutvat alarm actief" zal aan (true) zijn als:
